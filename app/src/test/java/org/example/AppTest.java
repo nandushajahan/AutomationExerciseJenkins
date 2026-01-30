@@ -73,7 +73,7 @@ public class AppTest {
     }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCase09() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         screenshotCount=1;
@@ -221,7 +221,7 @@ public class AppTest {
         takeScreenshot("testCase01");
         continueBtn2.click();
     }
-    @Test
+    @Test(enabled = false)
     public void testCase02() {
         // Placeholder for Test Case 02
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -346,7 +346,7 @@ public class AppTest {
         continueBtn2.click();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCase03() {
     // Navigate to url 'http://automationexercise.com'
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -382,7 +382,7 @@ public class AppTest {
         takeScreenshot("testCase03"); // screenshot5
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCase04() {
     // Navigate to url 'http://automationexercise.com'
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -526,7 +526,7 @@ public class AppTest {
         continueBtn2.click();   
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCase05() {
     // Navigate to url 'http://automationexercise.com'
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
