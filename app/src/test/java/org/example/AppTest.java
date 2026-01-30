@@ -217,69 +217,42 @@ public class AppTest {
         deleteAccount.click();
         // Verify that 'ACCOUNT DELETED!' is visible and click 'Continue' button
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
-        try {
+        // Handle ad (if present)
+try {
+    // Use a short wait only for the ad so it doesn't slow tests
     WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-    // 1) Try to find the ad container
-    List<WebElement> adContainers =
-            shortWait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
-                    By.xpath("//div[@id='card']")));
+    WebElement ad = shortWait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='card']"))
+    );
 
-    if (!adContainers.isEmpty() && adContainers.get(0).isDisplayed()) {
+    if (ad.isDisplayed()) {
         System.out.println("Ad displayed");
         takeScreenshot("testCase01");
 
-        boolean closed = false;
+        // Try to click close button
+        WebElement closeAd = shortWait.until(
+                ExpectedConditions.elementToBeClickable(
+                        By.xpath("//*[contains(@id,'dismiss') or contains(@id,'close')]")
+                )
+        );
 
-        // 2) Try inside possible ad iframes
-        List<WebElement> adIframes = driver.findElements(
-                By.cssSelector("iframe[id*='ad'], iframe[src*='ad'], iframe[src*='google']"));
-
-        for (WebElement frame : adIframes) {
-            try {
-                driver.switchTo().frame(frame);
-                List<WebElement> closeButtons =
-                        driver.findElements(By.xpath("//*[contains(@id,'dismiss') or contains(@id,'close')]"));
-                if (!closeButtons.isEmpty() && closeButtons.get(0).isDisplayed()) {
-                    WebElement closeAd = closeButtons.get(0);
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
-                    closed = true;
-                    System.out.println("Closed ad inside iframe");
-                    driver.switchTo().defaultContent();
-                    break;
-                }
-                driver.switchTo().defaultContent();
-            } catch (Exception ignored) {
-                driver.switchTo().defaultContent();
-            }
+        try {
+            closeAd.click();
+        } catch (Exception clickEx) {
+            // Fallback with JS click if normal click is blocked
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
         }
 
-        // 3) If not closed via iframe, try top‑level dismiss/close
-        if (!closed) {
-            try {
-                WebElement closeAd = shortWait.until(
-                        ExpectedConditions.elementToBeClickable(
-                                By.xpath("//*[contains(@id,'dismiss') or contains(@id,'close')]")
-                        )
-                );
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
-                System.out.println("Closed ad in main DOM");
-            } catch (TimeoutException te) {
-                System.out.println("Ad found but close button not clickable");
-            }
-        }
-
-        Thread.sleep(1000); // let overlay disappear
-    } else {
-        System.out.println("Ad container not visible");
+        Thread.sleep(1000); // small pause so overlay disappears
     }
 
 } catch (TimeoutException e) {
+    // No ad shown, just continue
     System.out.println("No ad displayed, continuing normally");
 } catch (Exception e) {
     System.out.println("Error while handling ad: " + e.getMessage());
-}
-
+    // don't fail test here; still try to validate and click Continue
 }
 
 // Now always verify message + click Continue
@@ -294,6 +267,7 @@ WebElement continueBtn2 = wait.until(
 );
 takeScreenshot("testCase01");
 continueBtn2.click();
+
 
         }
         
