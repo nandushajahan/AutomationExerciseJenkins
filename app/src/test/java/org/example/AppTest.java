@@ -219,6 +219,7 @@ public class AppTest {
         WebElement ad = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\"card\"]")));
         if(ad.isDisplayed()){
             System.out.println("Ad displayed");
+            takeScreenshot("testCase01");
             WebElement closeAd = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='dismiss-button']")));
             closeAd.click();
         }
