@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -216,19 +217,39 @@ public class AppTest {
         deleteAccount.click();
         // Verify that 'ACCOUNT DELETED!' is visible and click 'Continue' button
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
-        WebElement ad = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\"card\"]")));
-        if(ad.isDisplayed()){
-            System.out.println("Ad displayed");
-            takeScreenshot("testCase01");
-            WebElement closeAd = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='dismiss-button']")));
-            closeAd.click();
-        }
-        else{
-            Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),"\"ACCOUNT DELETED!\" message is not displayed");
-        WebElement continueBtn2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Continue']")));
+        try {
+        // Try to detect & close ad (non-fatal if not present)
+        WebElement ad = wait.until(
+        ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='card']")));
+        if (ad.isDisplayed()) {
+        System.out.println("Ad displayed");
         takeScreenshot("testCase01");
-        continueBtn2.click();
-    }
+        WebElement closeAd = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='dismiss-button']")));
+        closeAd.click();
+        // small pause so overlay disappears
+        Thread.sleep(1000);
+        }
+        } catch (TimeoutException e) {
+         // No ad shown, just continue
+        System.out.println("No ad displayed, continuing normally");
+        } catch (Exception e) {
+        System.out.println("Error while handling ad: " + e.getMessage());
+        // don't fail test here; still try to validate and click Continue
+}
+
+// Now always verify message + click Continue
+Assert.assertTrue(
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),
+        "\"ACCOUNT DELETED!\" message is not displayed"
+);
+
+WebElement continueBtn2 = wait.until(
+        ExpectedConditions.elementToBeClickable(By.xpath("//a[text()='Continue']"))
+);
+takeScreenshot("testCase01");
+continueBtn2.click();
+
         }
         
     @Test(enabled = false)
