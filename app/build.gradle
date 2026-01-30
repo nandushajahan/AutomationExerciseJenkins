@@ -53,5 +53,7 @@ test {
     testLogging {
         events "passed", "skipped", "failed"  // show test results
         showStandardStreams = true             // <-- show println output
+        jvmArgs '--enable-native-access=ALL-UNNAMED'
+        useTestNG()
     }
 }
