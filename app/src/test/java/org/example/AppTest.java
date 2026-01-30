@@ -219,41 +219,37 @@ public class AppTest {
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
         // Handle ad (if present)
 try {
-    // Use a short wait only for the ad so it doesn't slow tests
     WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-    WebElement ad = shortWait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='card']"))
+    // 1) Switch to the ad iframe
+    WebElement adIframe = (WebElement) shortWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.cssSelector("iframe[id*='ad_iframe'], iframe[src*='googlesyndication']")));
+    System.out.println("Switched to ad iframe");
+
+    // 2) Click the close / dismiss button
+    WebElement closeAd = shortWait.until(
+            ExpectedConditions.elementToBeClickable(
+                    By.id("dismiss-button")
+            )
     );
-
-    if (ad.isDisplayed()) {
-        System.out.println("Ad displayed");
-        takeScreenshot("testCase01");
-
-        // Try to click close button
-        WebElement closeAd = shortWait.until(
-                ExpectedConditions.elementToBeClickable(
-                        By.xpath("//*[contains(@id,'dismiss') or contains(@id,'close')]")
-                )
-        );
-
-        try {
-            closeAd.click();
-        } catch (Exception clickEx) {
-            // Fallback with JS click if normal click is blocked
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
-        }
-
-        Thread.sleep(1000); // small pause so overlay disappears
+    takeScreenshot("testCase01_Ad");
+    try {
+        closeAd.click();
+    } catch (Exception e) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
     }
 
+    // 3) Back to main page
+    driver.switchTo().defaultContent();
+    Thread.sleep(1000); // let overlay disappear
+
 } catch (TimeoutException e) {
-    // No ad shown, just continue
-    System.out.println("No ad displayed, continuing normally");
+    System.out.println("No ad iframe displayed, continuing normally");
+    driver.switchTo().defaultContent();
 } catch (Exception e) {
     System.out.println("Error while handling ad: " + e.getMessage());
-    // don't fail test here; still try to validate and click Continue
+    driver.switchTo().defaultContent();
 }
+
 
 // Now always verify message + click Continue
 Assert.assertTrue(
