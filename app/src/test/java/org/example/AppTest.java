@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -216,18 +217,35 @@ public class AppTest {
         deleteAccount.click();
         // Verify that 'ACCOUNT DELETED!' is visible and click 'Continue' button
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
-        WebElement ad = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\"card\"]")));
-        if(ad.isDisplayed()){
-            //refresh the page
-            driver.navigate().refresh();
-        }
-        else
-        {
-            Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),"\"ACCOUNT DELETED!\" message is not displayed");
-            WebElement continueBtn2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Continue']")));
-            takeScreenshot("testCase01"); // screenshot8
-            continueBtn2.click();
-        }
+        // 1) Try to detect ad quickly (no failure if not found)
+try {
+    WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+    WebElement ad = shortWait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='card']"))
+    );
+
+    if (ad.isDisplayed()) {
+        System.out.println("Ad displayed, refreshing page to remove it");
+        driver.navigate().refresh();
+    }
+} catch (TimeoutException e) {
+    System.out.println("No ad displayed, continuing normally");
+}
+
+// 2) Now always verify message + click Continue
+Assert.assertTrue(
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),
+        "\"ACCOUNT DELETED!\" message is not displayed"
+);
+
+WebElement continueBtn2 = wait.until(
+        ExpectedConditions.elementToBeClickable(By.xpath("//a[text()='Continue']"))
+);
+takeScreenshot("testCase01");
+continueBtn2.click();
+
     }
     @Test(enabled = false)
     public void testCase02() {
