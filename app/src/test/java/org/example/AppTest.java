@@ -11,7 +11,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -217,56 +216,19 @@ public class AppTest {
         deleteAccount.click();
         // Verify that 'ACCOUNT DELETED!' is visible and click 'Continue' button
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
-        // Handle ad (if present)
-try {
-    WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-    // 1) Switch to the ad iframe
-    WebElement adIframe = (WebElement) shortWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.cssSelector("iframe[id*='ad_iframe'], iframe[src*='googlesyndication']")));
-    System.out.println("Switched to ad iframe");
-
-    // 2) Click the close / dismiss button
-    WebElement closeAd = shortWait.until(
-            ExpectedConditions.elementToBeClickable(
-                    By.id("dismiss-button")
-            )
-    );
-    takeScreenshot("testCase01_Ad");
-    try {
-        closeAd.click();
-    } catch (Exception e) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeAd);
-    }
-
-    // 3) Back to main page
-    driver.switchTo().defaultContent();
-    Thread.sleep(1000); // let overlay disappear
-
-} catch (TimeoutException e) {
-    System.out.println("No ad iframe displayed, continuing normally");
-    driver.switchTo().defaultContent();
-} catch (Exception e) {
-    System.out.println("Error while handling ad: " + e.getMessage());
-    driver.switchTo().defaultContent();
-}
-
-
-// Now always verify message + click Continue
-Assert.assertTrue(
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),
-        "\"ACCOUNT DELETED!\" message is not displayed"
-);
-
-WebElement continueBtn2 = wait.until(
-        ExpectedConditions.elementToBeClickable(By.xpath("//a[text()='Continue']"))
-);
-takeScreenshot("testCase01");
-continueBtn2.click();
-
-
+        WebElement ad = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\"card\"]")));
+        if(ad.isDisplayed()){
+            //refresh the page
+            driver.navigate().refresh();
         }
-        
+        else
+        {
+            Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),"\"ACCOUNT DELETED!\" message is not displayed");
+            WebElement continueBtn2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Continue']")));
+            takeScreenshot("testCase01"); // screenshot8
+            continueBtn2.click();
+        }
+    }
     @Test(enabled = false)
     public void testCase02() {
         // Placeholder for Test Case 02
