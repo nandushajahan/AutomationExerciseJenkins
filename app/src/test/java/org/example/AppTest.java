@@ -224,7 +224,7 @@ public class AppTest {
         if (ad.isDisplayed()) {
         System.out.println("Ad displayed");
         takeScreenshot("testCase01");
-        WebElement closeAd = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='dismiss-button']")));
+        WebElement closeAd = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[contains(@id,'dismiss')]")));
         closeAd.click();
         // small pause so overlay disappears
         Thread.sleep(1000);
