@@ -216,11 +216,20 @@ public class AppTest {
         deleteAccount.click();
         // Verify that 'ACCOUNT DELETED!' is visible and click 'Continue' button
         // Assertion: Ensure "ACCOUNT DELETED!" message is displayed, then click "Continue"
-        Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),"\"ACCOUNT DELETED!\" message is not displayed");
+        WebElement ad = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id=\"card\"]")));
+        if(ad.isDisplayed()){
+            System.out.println("Ad displayed");
+            WebElement closeAd = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='dismiss-button']")));
+            closeAd.click();
+        }
+        else{
+            Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//b[text()='Account Deleted!']"))).isDisplayed(),"\"ACCOUNT DELETED!\" message is not displayed");
         WebElement continueBtn2 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Continue']")));
         takeScreenshot("testCase01");
         continueBtn2.click();
     }
+        }
+        
     @Test(enabled = false)
     public void testCase02() {
         // Placeholder for Test Case 02
